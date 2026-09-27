@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>graph8 Cost Optimizer | AI Sales Enrichment Optimization</title>
+  
+  <!-- Official Graph8 Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/graph8-logo.svg">
+
+  <!-- Aeonik / Plus Jakarta Sans Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#F2EFE9',
+            plum: '#251B3A',
+            plumLink: '#461B3C',
+            bodyGrey: '#737373',
+            violet: '#7D2DF3',
+            richBlack: '#16140F',
+            cardBorder: '#E2DDD5'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#F2EFE9] text-[#251B3A] min-h-screen flex flex-col font-sans selection:bg-[#7D2DF3]/20 selection:text-[#251B3A]">
+
+  <!-- TOP BAR / HEADER WITH GRAPH8 BRANDING -->
+  <header class="bg-white border-b border-[#E2DDD5] sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Graph8 Official Logo & Title -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+        <div class="w-10 h-10 rounded-lg bg-[#251B3A] p-1.5 flex items-center justify-center shadow-md">
+          <svg width="24" height="32" viewBox="0 0 31 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24.2781 28.8961C24.2781 33.7018 20.1355 37.6338 14.9573 37.6338C10.6205 37.6338 6.86623 34.8252 5.89531 30.8933L0.328675 31.767H0.199219C1.62324 38.2579 7.77243 43.0012 14.8925 43.0012C23.1778 43.0012 29.9095 36.6976 29.9095 28.9585V27.2109L24.2134 28.0847V28.8961H24.2781Z" fill="url(#paint0_linear_g8_hdr)"/>
+            <path d="M0 14.1051C0 21.8443 6.73174 28.1479 15.017 28.1479C23.3022 28.1479 30.0339 21.8443 30.0339 14.1051C30.0339 10.7973 28.8041 7.80152 26.7975 5.36745H30.0987V0H15.017C6.73174 0.0624122 0 6.36604 0 14.1051ZM24.2731 14.1051C24.2731 18.9109 20.1305 22.8429 14.9522 22.8429C9.8387 22.8429 5.63136 18.9109 5.63136 14.1051C5.63136 9.29941 9.77397 5.36745 14.9522 5.36745C20.1305 5.42986 24.2731 9.29941 24.2731 14.1051Z" fill="url(#paint1_linear_g8_hdr)"/>
+            <defs>
+              <linearGradient id="paint0_linear_g8_hdr" x1="7.90897" y1="27.856" x2="26.2263" y2="42.4322" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00CAEB"/>
+                <stop offset="0.9999" stop-color="#FB62D6"/>
+              </linearGradient>
+              <linearGradient id="paint1_linear_g8_hdr" x1="7.81053" y1="1.14984" x2="32.9721" y2="12.5288" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00CAEB"/>
+                <stop offset="0.9999" stop-color="#FB62D6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-bold text-lg text-[#251B3A] tracking-tight flex items-center gap-1">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00CAEB] via-[#FB62D6] to-[#7D2DF3]">graph8</span>
+              <span class="text-[#251B3A] font-extrabold">Cost Optimizer</span>
+            </h1>
+            <span id="header-mode-badge" class="px-2 py-0.5 text-[11px] font-semibold rounded-md badge-demo">
+              <i data-lucide="flask-conical" class="w-3 h-3 inline mr-1"></i>DEMO MODE
+            </span>
+          </div>
+          <p class="text-[11px] text-[#737373]">Reduce enrichment credit spend with segment-smart waterfalls</p>
+        </div>
+      </div>
+
+      <!-- Connection Status & CTA -->
+      <div class="flex items-center space-x-4">
+        <div id="connection-pill" onclick="switchTab('settings')" class="cursor-pointer flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-[#F2EFE9] border border-[#E2DDD5] hover:border-[#7D2DF3] text-xs transition-all">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" id="conn-dot"></span>
+          <span class="text-[#251B3A] font-medium" id="conn-status-text">Testing Connection...</span>
+        </div>
+
+        <button onclick="switchTab('optimizer')" class="btn-primary">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>Optimize Enrichment</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN NAVIGATION TABS -->
+  <nav class="bg-[#F2EFE9] border-b border-[#E2DDD5] sticky top-16 z-30 py-2">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 overflow-x-auto">
+      <button onclick="switchTab('dashboard')" id="tab-nav-dashboard" class="tab-btn active px-4 py-2 text-sm flex items-center space-x-2">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 text-[#7D2DF3]"></i>
+        <span>Dashboard</span>
+      </button>
+
+      <button onclick="switchTab('optimizer')" id="tab-nav-optimizer" class="tab-btn px-4 py-2 text-sm flex items-center space-x-2">
+        <i data-lucide="cpu" class="w-4 h-4 text-[#047857]"></i>
+        <span>Enrichment Optimizer</span>
+      </button>
+
+      <button onclick="switchTab('jobs')" id="tab-nav-jobs" class="tab-btn px-4 py-2 text-sm flex items-center space-x-2">
+        <i data-lucide="history" class="w-4 h-4 text-[#251B3A]"></i>
+        <span>Jobs</span>
+      </button>
+
+      <button onclick="switchTab('providers')" id="tab-nav-providers" class="tab-btn px-4 py-2 text-sm flex items-center space-x-2">
+        <i data-lucide="database" class="w-4 h-4 text-[#7D2DF3]"></i>
+        <span>Providers</span>
+      </button>
+
+      <button onclick="switchTab('savings')" id="tab-nav-savings" class="tab-btn px-4 py-2 text-sm flex items-center space-x-2">
+        <i data-lucide="trending-up" class="w-4 h-4 text-[#461B3C]"></i>
+        <span>Savings</span>
+      </button>
+
+      <button onclick="switchTab('settings')" id="tab-nav-settings" class="tab-btn px-4 py-2 text-sm flex items-center space-x-2">
+        <i data-lucide="settings" class="w-4 h-4 text-[#737373]"></i>
+        <span>Settings</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- APPLICATION BODY CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: DASHBOARD                           -->
+    <!-- ========================================== -->
+    <section id="tab-dashboard" class="space-y-8">
+      
+      <!-- Key Metric Highlights -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Metric 1: Total Credits Saved -->
+        <div class="g8-card g8-card-interactive p-6 space-y-2 border-l-4 border-l-[#047857]">
+          <div class="flex items-center justify-between text-[#737373] text-xs font-semibold uppercase tracking-wider">
+            <span>Total Credits Saved</span>
+            <div class="p-2 bg-[#ECFDF5] text-[#047857] rounded-md">
+              <i data-lucide="piggy-bank" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="text-3xl font-extrabold text-[#251B3A]" id="dash-total-saved-credits">16,840</div>
+          <div class="text-xs text-[#047857] font-semibold" id="dash-savings-pct">25.8% avg reduction</div>
+        </div>
+
+        <!-- Metric 2: Current Optimization Opportunity -->
+        <div class="g8-card g8-card-interactive p-6 space-y-2 border-l-4 border-l-[#7D2DF3]">
+          <div class="flex items-center justify-between text-[#737373] text-xs font-semibold uppercase tracking-wider">
+            <span>Current Opportunity</span>
+            <div class="p-2 bg-[#F5F3FF] text-[#7D2DF3] rounded-md">
+              <i data-lucide="target" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="text-3xl font-extrabold text-[#251B3A]" id="dash-opp-credits">8,500 Credits</div>
+          <div class="text-xs text-[#737373]">Ready for next 10,000 contact batch</div>
+        </div>
+
+        <!-- Metric 3: Avg Cost / Successful Email -->
+        <div class="g8-card g8-card-interactive p-6 space-y-2 border-l-4 border-l-[#251B3A]">
+          <div class="flex items-center justify-between text-[#737373] text-xs font-semibold uppercase tracking-wider">
+            <span>Avg Cost / Success</span>
+            <div class="p-2 bg-[#F2EFE9] text-[#251B3A] rounded-md">
+              <i data-lucide="coins" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="text-3xl font-extrabold text-[#251B3A]" id="dash-avg-cost-success">2.75 Credits</div>
+          <div class="text-xs text-[#737373]">Down from 3.85 credits baseline</div>
+        </div>
+
+        <!-- Metric 4: Total Enriched Contacts -->
+        <div class="g8-card g8-card-interactive p-6 space-y-2 border-l-4 border-l-[#461B3C]">
+          <div class="flex items-center justify-between text-[#737373] text-xs font-semibold uppercase tracking-wider">
+            <span>Contacts Enriched</span>
+            <div class="p-2 bg-[#FFF7ED] text-[#C2410C] rounded-md">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="text-3xl font-extrabold text-[#251B3A]" id="dash-total-contacts">17,500</div>
+          <div class="text-xs text-[#737373]">Across 3 executed optimization jobs</div>
+        </div>
+      </div>
+
+      <!-- Actionable Opportunity Hero Banner -->
+      <div class="bg-[#251B3A] text-white rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+        <div class="space-y-2">
+          <div class="flex items-center space-x-2">
+            <span class="px-3 py-1 rounded-md text-xs font-bold bg-[#7D2DF3] text-white">Actionable Opportunity</span>
+            <span class="text-xs text-[#E2DDD5]">Segment-Smart Optimization Rationale</span>
+          </div>
+          <h3 class="text-2xl font-bold text-white tracking-tight">Save up to 8,500 credits on your next 10,000 contact batch</h3>
+          <p class="text-sm text-[#E2DDD5] max-w-2xl leading-relaxed">
+            Standard Graph8 default waterfalls send all contacts through high-price providers first. Switching to <span class="text-[#00CAEB] font-semibold">Segment-Smart Waterfalls</span> (Prospeo → Hunter in US, Hunter → Prospeo in UK) reduces cost per successful email by <span class="text-[#34D399] font-bold">24.6%</span> while maintaining identical enrichment quality.
+          </p>
+        </div>
+        <button onclick="switchTab('optimizer')" class="btn-violet px-6 py-3.5 whitespace-nowrap text-sm shadow-lg">
+          <span>Run Optimization Simulation</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Two-Column Section: Top Expensive Segments & Recent Jobs -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Top Expensive Segments Breakdown -->
+        <div class="g8-card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-[#251B3A] flex items-center space-x-2">
+              <i data-lucide="pie-chart" class="w-5 h-5 text-[#7D2DF3]"></i>
+              <span>Top Expensive Segments</span>
+            </h3>
+            <span class="text-xs text-[#737373]">Cost / Success</span>
+          </div>
+
+          <div class="space-y-3" id="dash-top-segments-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Recent Enrichment Jobs -->
+        <div class="g8-card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-[#251B3A] flex items-center space-x-2">
+              <i data-lucide="history" class="w-5 h-5 text-[#047857]"></i>
+              <span>Recent Jobs History</span>
+            </h3>
+            <button onclick="switchTab('jobs')" class="text-xs text-[#7D2DF3] font-semibold hover:underline">View All</button>
+          </div>
+
+          <div class="space-y-3" id="dash-recent-jobs-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: ENRICHMENT OPTIMIZER                -->
+    <!-- ========================================== -->
+    <section id="tab-optimizer" class="hidden space-y-8">
+      
+      <!-- Wizard / Workflow Header -->
+      <div class="g8-card p-6 space-y-6">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-[#251B3A] flex items-center space-x-2">
+              <i data-lucide="cpu" class="w-7 h-7 text-[#7D2DF3]"></i>
+              <span>Email Enrichment Optimizer</span>
+            </h2>
+            <p class="text-sm text-[#737373]">Determine the most cost-efficient enrichment provider waterfall strategy before executing Graph8 jobs.</p>
+          </div>
+
+          <!-- Dataset Presets Buttons -->
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-[#737373] font-medium">Quick Demo Datasets:</span>
+            <button onclick="loadDemoDataset(1000)" class="btn-secondary text-xs py-1.5 px-3">1,000</button>
+            <button onclick="loadDemoDataset(10000)" class="btn-violet text-xs py-1.5 px-3">10,000 (Recommended)</button>
+            <button onclick="loadDemoDataset(50000)" class="btn-secondary text-xs py-1.5 px-3">50,000</button>
+          </div>
+        </div>
+
+        <!-- Upload CSV Box -->
+        <div class="border-2 border-dashed border-[#E2DDD5] hover:border-[#7D2DF3] rounded-xl p-8 text-center transition-colors bg-[#F8F6F1]">
+          <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleCsvUpload(event)">
+          <label for="csv-file-input" class="cursor-pointer flex flex-col items-center justify-center space-y-2">
+            <div class="w-12 h-12 rounded-full bg-[#7D2DF3]/10 text-[#7D2DF3] flex items-center justify-center">
+              <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+            </div>
+            <div class="text-sm font-semibold text-[#251B3A]">
+              Drop your contact CSV here, or <span class="text-[#7D2DF3] underline">browse</span>
+            </div>
+            <p class="text-xs text-[#737373]">Requires minimum fields: <code class="bg-[#E2DDD5] px-1.5 py-0.5 rounded text-[#251B3A]">first_name, last_name, company</code> (+ optional domain, email, country, size)</p>
+          </label>
+        </div>
+
+        <!-- Post Upload Contact Stats Summary -->
+        <div id="batch-stats-card" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-2">
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Total Contacts</div>
+            <div class="text-lg font-bold text-[#251B3A]" id="stat-total">10,000</div>
+          </div>
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Existing Email</div>
+            <div class="text-lg font-bold text-[#047857]" id="stat-with-email">3,500</div>
+          </div>
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Missing Email</div>
+            <div class="text-lg font-bold text-[#C2410C]" id="stat-missing-email">6,500</div>
+          </div>
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Company Domain</div>
+            <div class="text-lg font-bold text-[#7D2DF3]" id="stat-with-domain">10,000</div>
+          </div>
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Already Enriched</div>
+            <div class="text-lg font-bold text-[#251B3A]" id="stat-already-enriched">3,500</div>
+          </div>
+          <div class="bg-[#F5F3FF] p-4 rounded-lg border border-[#7D2DF3]/30 text-center">
+            <div class="text-xs text-[#7D2DF3] font-semibold">Eligible for Enrich</div>
+            <div class="text-lg font-bold text-[#7D2DF3]" id="stat-eligible">6,500</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Guardrails & Constraints Inputs -->
+      <div class="g8-card p-6 space-y-4">
+        <h3 class="text-md font-bold text-[#251B3A] flex items-center space-x-2">
+          <i data-lucide="shield-check" class="w-5 h-5 text-[#047857]"></i>
+          <span>Optimization Safety Guardrails</span>
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Guardrail 1: Max Success Rate Drop -->
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-[#251B3A] font-semibold">Max Success Rate Reduction</span>
+              <span class="text-[#7D2DF3] font-bold" id="val-max-drop">2.0%</span>
+            </div>
+            <input type="range" id="input-max-drop" min="0.5" max="10.0" step="0.5" value="2.0" class="w-full h-2 bg-[#E2DDD5] rounded-lg appearance-none cursor-pointer accent-[#7D2DF3]" oninput="document.getElementById('val-max-drop').innerText = this.value + '%'">
+            <p class="text-[11px] text-[#737373]">Reject if strategy causes success rate to drop by more than limit.</p>
+          </div>
+
+          <!-- Guardrail 2: Min Required Savings -->
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-[#251B3A] font-semibold">Minimum Expected Savings</span>
+              <span class="text-[#047857] font-bold" id="val-min-savings">10.0%</span>
+            </div>
+            <input type="range" id="input-min-savings" min="5.0" max="40.0" step="2.5" value="10.0" class="w-full h-2 bg-[#E2DDD5] rounded-lg appearance-none cursor-pointer accent-[#047857]" oninput="document.getElementById('val-min-savings').innerText = this.value + '%'">
+            <p class="text-[11px] text-[#737373]">Only recommend strategy if savings exceed this threshold.</p>
+          </div>
+
+          <!-- Guardrail 3: Max Latency -->
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-[#251B3A] font-semibold">Max Acceptable Response Time</span>
+              <span class="text-[#251B3A] font-bold" id="val-max-latency">30s</span>
+            </div>
+            <input type="range" id="input-max-latency" min="5" max="60" step="5" value="30" class="w-full h-2 bg-[#E2DDD5] rounded-lg appearance-none cursor-pointer accent-[#251B3A]" oninput="document.getElementById('val-max-latency').innerText = this.value + 's'">
+            <p class="text-[11px] text-[#737373]">Limit total multi-step waterfall latency.</p>
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <button onclick="runOptimizationSimulation()" class="btn-primary">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+            <span>Calculate Cost Simulation</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RESULTS & COMPARISON CONTAINER -->
+      <div id="simulation-results-container" class="hidden space-y-6">
+        
+        <!-- Comparison Card -->
+        <div class="g8-card p-6 space-y-6">
+          <div class="flex items-center justify-between border-b border-[#E2DDD5] pb-4">
+            <div>
+              <div class="flex items-center space-x-3">
+                <h3 class="text-xl font-bold text-[#251B3A]">Strategy Cost & Efficiency Comparison</h3>
+                <span id="sim-estimate-badge" class="px-2.5 py-0.5 rounded-md text-xs font-semibold badge-demo">DEMO ESTIMATE</span>
+              </div>
+              <p class="text-xs text-[#737373]">Comparing standard Graph8 default waterfall against Segment-Smart routing</p>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-[#047857]" id="sim-savings-highlight">8,500 Credits (26.6%)</div>
+              <div class="text-xs text-[#737373]">Estimated Total Savings</div>
+            </div>
+          </div>
+
+          <!-- Side-by-Side Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Current Strategy Card -->
+            <div class="bg-[#F8F6F1] p-5 rounded-lg border border-[#E2DDD5] space-y-4">
+              <div class="flex justify-between items-center border-b border-[#E2DDD5] pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#737373]">Current Graph8 Strategy</span>
+                <span class="text-xs px-2 py-0.5 bg-[#E2DDD5] text-[#251B3A] rounded">Baseline Waterfall</span>
+              </div>
+
+              <div class="text-sm font-semibold text-[#251B3A]" id="curr-chain-display">Apollo → Clearbit → Hunter</div>
+
+              <div class="grid grid-cols-2 gap-3 pt-2">
+                <div class="bg-white p-3 rounded border border-[#E2DDD5]">
+                  <div class="text-[11px] text-[#737373]">Estimated Credits</div>
+                  <div class="text-lg font-bold text-[#251B3A]" id="curr-credits">32,000</div>
+                </div>
+                <div class="bg-white p-3 rounded border border-[#E2DDD5]">
+                  <div class="text-[11px] text-[#737373]">Successful Emails</div>
+                  <div class="text-lg font-bold text-[#251B3A]" id="curr-successes">7,800</div>
+                </div>
+                <div class="bg-white p-3 rounded border border-[#E2DDD5] col-span-2">
+                  <div class="text-[11px] text-[#737373]">Expected Cost / Success</div>
+                  <div class="text-xl font-bold text-[#C2410C]" id="curr-cost-per-success">4.10 Credits</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Optimized Strategy Card -->
+            <div class="bg-[#ECFDF5] p-5 rounded-lg border border-[#A7F3D0] space-y-4">
+              <div class="flex justify-between items-center border-b border-[#A7F3D0] pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#047857]">Optimized Strategy</span>
+                <span class="text-xs px-2 py-0.5 bg-[#047857] text-white rounded font-semibold">Recommended</span>
+              </div>
+
+              <div class="text-sm font-semibold text-[#047857]" id="opt-chain-display">Segment-Smart Routing (Prospeo / Hunter / Dropcontact)</div>
+
+              <div class="grid grid-cols-2 gap-3 pt-2">
+                <div class="bg-white p-3 rounded border border-[#A7F3D0]">
+                  <div class="text-[11px] text-[#737373]">Estimated Credits</div>
+                  <div class="text-lg font-bold text-[#047857]" id="opt-credits">23,500</div>
+                </div>
+                <div class="bg-white p-3 rounded border border-[#A7F3D0]">
+                  <div class="text-[11px] text-[#737373]">Successful Emails</div>
+                  <div class="text-lg font-bold text-[#047857]" id="opt-successes">7,600</div>
+                </div>
+                <div class="bg-white p-3 rounded border border-[#A7F3D0] col-span-2">
+                  <div class="text-[11px] text-[#737373]">Expected Cost / Success</div>
+                  <div class="text-xl font-bold text-[#047857]" id="opt-cost-per-success">3.09 Credits</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Optimization Recommendation & Explanation Box -->
+          <div class="bg-[#F8F6F1] border border-[#E2DDD5] rounded-lg p-5 space-y-4">
+            <h4 class="text-sm font-bold text-[#251B3A] flex items-center space-x-2">
+              <i data-lucide="help-circle" class="w-4 h-4 text-[#7D2DF3]"></i>
+              <span>Why the Optimizer Selected This Strategy</span>
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="segment-explanation-grid">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Mathematical Rationale -->
+            <div class="text-xs text-[#251B3A] bg-white p-4 rounded border border-[#E2DDD5] space-y-1">
+              <div class="font-semibold text-[#251B3A]">Mathematical Rationale:</div>
+              <p>
+                Provider pricing alone is misleading. Although Provider A costs 3 credits with 90% success (3.33 credits/success), Provider B costs 1 credit with 40% success (2.50 credits/success).
+                By routing contacts to Provider B first and cascading failures to Provider A, the cumulative expected cost per successful email drops to <strong>3.09 credits</strong>.
+              </p>
+            </div>
+          </div>
+
+          <!-- Approval CTA Bar -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#E2DDD5]">
+            <div id="guardrail-status-banner" class="flex items-center space-x-2 text-xs font-semibold text-[#047857]">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+              <span>All Safety Guardrails Passed</span>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button onclick="openReviewModal()" class="btn-secondary">
+                Review Optimization
+              </button>
+
+              <button onclick="openApplyConfirmModal()" class="btn-violet shadow-lg">
+                <i data-lucide="play" class="w-4 h-4"></i>
+                <span>Apply Optimization & Execute</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- LIVE BATCH EXECUTION TRACKER -->
+      <div id="execution-tracker-container" class="hidden g8-card p-6 space-y-6">
+        <div class="flex items-center justify-between border-b border-[#E2DDD5] pb-4">
+          <div>
+            <h3 class="text-lg font-bold text-[#251B3A] flex items-center space-x-2">
+              <i data-lucide="loader" class="w-5 h-5 text-[#7D2DF3] animate-spin" id="exec-spinner"></i>
+              <span id="exec-title">Executing Optimized Enrichment Job</span>
+            </h3>
+            <p class="text-xs text-[#737373]" id="exec-subtitle">Processing batch contacts through segment-smart waterfalls...</p>
+          </div>
+          <span class="px-3 py-1 bg-[#F5F3FF] text-[#7D2DF3] font-mono text-xs rounded border border-[#DDD6FE]" id="exec-job-id">JOB_1004</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-medium">
+            <span class="text-[#251B3A]" id="exec-progress-label">Batch Progress: 0 / 10,000</span>
+            <span class="text-[#7D2DF3] font-bold" id="exec-progress-pct">0%</span>
+          </div>
+          <div class="w-full h-3 bg-[#E2DDD5] rounded-full overflow-hidden">
+            <div id="exec-progress-fill" class="h-full bg-gradient-to-r from-[#00CAEB] via-[#FB62D6] to-[#7D2DF3] progress-bar-fill w-0"></div>
+          </div>
+        </div>
+
+        <!-- Realtime Batch Execution Metrics -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Actual Credits Spent</div>
+            <div class="text-xl font-bold text-[#251B3A]" id="exec-spent-credits">0</div>
+          </div>
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Successful Emails</div>
+            <div class="text-xl font-bold text-[#047857]" id="exec-success-count">0</div>
+          </div>
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Actual Cost / Success</div>
+            <div class="text-xl font-bold text-[#7D2DF3]" id="exec-cost-per-success">0.00</div>
+          </div>
+          <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] text-center">
+            <div class="text-xs text-[#737373]">Actual Credits Saved</div>
+            <div class="text-xl font-bold text-[#047857]" id="exec-saved-credits">0</div>
+          </div>
+        </div>
+
+        <!-- Post-Execution Statistical Learning Update Summary -->
+        <div id="learning-update-summary" class="hidden bg-[#F8F6F1] border border-[#E2DDD5] rounded-lg p-5 space-y-3">
+          <div class="flex items-center space-x-2 text-[#047857] font-bold text-sm">
+            <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+            <span>Learning System Metrics Updated</span>
+          </div>
+          <p class="text-xs text-[#737373]">
+            Post-execution statistical models updated provider performance metrics based on verified job outcomes.
+          </p>
+          <div class="space-y-2 text-xs" id="learning-updates-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: JOBS HISTORY                        -->
+    <!-- ========================================== -->
+    <section id="tab-jobs" class="hidden space-y-8">
+      <div class="g8-card p-6 space-y-4">
+        <div>
+          <h2 class="text-2xl font-bold text-[#251B3A] flex items-center space-x-2">
+            <i data-lucide="history" class="w-6 h-6 text-[#7D2DF3]"></i>
+            <span>Optimization Jobs History</span>
+          </h2>
+          <p class="text-sm text-[#737373]">Inspect past enrichment jobs, mathematical assumptions, and actual savings.</p>
+        </div>
+
+        <!-- Jobs Table -->
+        <div class="overflow-x-auto rounded-lg border border-[#E2DDD5]">
+          <table class="w-full text-left text-sm text-[#251B3A]">
+            <thead class="bg-[#F8F6F1] text-xs font-semibold uppercase text-[#737373] border-b border-[#E2DDD5]">
+              <tr>
+                <th class="p-3.5">Date & Job ID</th>
+                <th class="p-3.5">Batch Name</th>
+                <th class="p-3.5">Contacts</th>
+                <th class="p-3.5">Original Strategy</th>
+                <th class="p-3.5">Optimized Strategy</th>
+                <th class="p-3.5">Actual Spent</th>
+                <th class="p-3.5">Actual Savings</th>
+                <th class="p-3.5">Success Rate</th>
+                <th class="p-3.5 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="jobs-table-body" class="divide-y divide-[#E2DDD5]">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: PROVIDERS INVENTORY                 -->
+    <!-- ========================================== -->
+    <section id="tab-providers" class="hidden space-y-8">
+      <div class="g8-card p-6 space-y-4">
+        <div>
+          <h2 class="text-2xl font-bold text-[#251B3A] flex items-center space-x-2">
+            <i data-lucide="database" class="w-6 h-6 text-[#7D2DF3]"></i>
+            <span>Graph8 Enrichment Provider Inventory</span>
+          </h2>
+          <p class="text-sm text-[#737373]">Track credit costs, historical success rates, BYOK settings, and average response times across providers.</p>
+        </div>
+
+        <!-- Provider Warning Note -->
+        <div class="bg-[#FFF7ED] border border-[#FFEDD5] text-[#C2410C] text-xs p-4 rounded-lg flex items-center space-x-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i>
+          <span>Sample size warnings are displayed when historical attempts are under 30. Providers with low sample size use conservative baseline estimates.</span>
+        </div>
+
+        <!-- Providers Table -->
+        <div class="overflow-x-auto rounded-lg border border-[#E2DDD5]">
+          <table class="w-full text-left text-sm text-[#251B3A]">
+            <thead class="bg-[#F8F6F1] text-xs font-semibold uppercase text-[#737373] border-b border-[#E2DDD5]">
+              <tr>
+                <th class="p-3.5">Provider</th>
+                <th class="p-3.5">Action</th>
+                <th class="p-3.5">Credit Cost</th>
+                <th class="p-3.5">Success Rate</th>
+                <th class="p-3.5">Expected Cost / Success</th>
+                <th class="p-3.5">Avg Response Time</th>
+                <th class="p-3.5">Sample Size</th>
+                <th class="p-3.5">Type</th>
+                <th class="p-3.5 text-center">Edit</th>
+              </tr>
+            </thead>
+            <tbody id="providers-table-body" class="divide-y divide-[#E2DDD5]">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: SAVINGS TRACKING                    -->
+    <!-- ========================================== -->
+    <section id="tab-savings" class="hidden space-y-8">
+      <div class="g8-card p-6 space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold text-[#251B3A] flex items-center space-x-2">
+            <i data-lucide="trending-up" class="w-6 h-6 text-[#047857]"></i>
+            <span>Savings & Credit Performance Analytics</span>
+          </h2>
+          <p class="text-sm text-[#737373]">No False Savings. Clear distinction between Actual, Estimated, and Projected credit metrics.</p>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-[#F8F6F1] p-5 rounded-lg border border-[#E2DDD5]">
+            <div class="text-xs text-[#737373] font-semibold uppercase">Baseline (Without Optimizer)</div>
+            <div class="text-2xl font-bold text-[#251B3A] mt-1" id="sav-baseline">57,000 Credits</div>
+            <div class="text-xs text-[#737373] mt-1">Standard non-optimized default waterfall</div>
+          </div>
+          <div class="bg-[#ECFDF5] p-5 rounded-lg border border-[#A7F3D0]">
+            <div class="text-xs text-[#047857] font-semibold uppercase">Actual Verified Savings</div>
+            <div class="text-2xl font-bold text-[#047857] mt-1" id="sav-actual">16,920 Credits (29.7%)</div>
+            <div class="text-xs text-[#047857] mt-1">From completed executed enrichment jobs</div>
+          </div>
+          <div class="bg-[#F5F3FF] p-5 rounded-lg border border-[#DDD6FE]">
+            <div class="text-xs text-[#7D2DF3] font-semibold uppercase">Projected 30-Day Forecast</div>
+            <div class="text-2xl font-bold text-[#7D2DF3] mt-1" id="sav-projected">25,380 Credits</div>
+            <div class="text-xs text-[#737373] mt-1">Extrapolated based on current volume</div>
+          </div>
+        </div>
+
+        <!-- Assumptions Box -->
+        <div class="bg-[#F8F6F1] border border-[#E2DDD5] rounded-lg p-5 space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#251B3A] flex items-center space-x-2">
+            <i data-lucide="info" class="w-4 h-4 text-[#7D2DF3]"></i>
+            <span>Calculation Assumptions & Verification Rules</span>
+          </div>
+          <ul class="list-disc list-inside text-xs text-[#737373] space-y-1" id="savings-assumptions-list">
+            <!-- Rendered dynamically -->
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 6: SETTINGS & GRAPH8 CONNECTION        -->
+    <!-- ========================================== -->
+    <section id="tab-settings" class="hidden space-y-8">
+      <div class="g8-card p-6 space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold text-[#251B3A] flex items-center space-x-2">
+            <i data-lucide="key" class="w-6 h-6 text-[#7D2DF3]"></i>
+            <span>Graph8 API Connection & App Settings</span>
+          </h2>
+          <p class="text-sm text-[#737373]">Configure Graph8 credentials and toggle Demo Mode.</p>
+        </div>
+
+        <div class="bg-[#F8F6F1] p-6 rounded-lg border border-[#E2DDD5] space-y-4 max-w-2xl">
+          <div class="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
+            <span class="text-sm font-semibold text-[#251B3A]">Connection Status</span>
+            <span id="settings-status-badge" class="px-3 py-1 rounded-md text-xs font-bold badge-demo">DEMO MODE</span>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-[#251B3A]">Graph8 API Key</label>
+            <input type="password" id="settings-api-key" placeholder="g8_live_..." class="w-full px-4 py-2.5 bg-white border border-[#030302] rounded-lg text-sm text-[#251B3A] font-mono">
+            <p class="text-[11px] text-[#737373]">Enter your Graph8 Bearer API Key obtained from Graph8 Developer Settings.</p>
+          </div>
+
+          <div class="pt-2 flex items-center space-x-3">
+            <button onclick="testConnectionFromSettings()" class="btn-primary">
+              <i data-lucide="plug" class="w-4 h-4"></i>
+              <span>Test Connection</span>
+            </button>
+            <span class="text-xs text-[#737373]" id="connection-result-msg"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: REVIEW OPTIMIZATION -->
+  <div id="review-modal" class="hidden fixed inset-0 z-50 bg-[#251B3A]/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-[#E2DDD5] rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
+        <h3 class="text-lg font-bold text-[#251B3A]">Review Optimization Details</h3>
+        <button onclick="closeReviewModal()" class="text-[#737373] hover:text-[#251B3A]"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs text-[#251B3A]" id="review-modal-body">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="flex justify-end space-x-3 pt-3 border-t border-[#E2DDD5]">
+        <button onclick="closeReviewModal()" class="btn-secondary text-xs py-2">Close</button>
+        <button onclick="closeReviewModal(); openApplyConfirmModal();" class="btn-violet text-xs py-2">Proceed to Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: APPLY CONFIRMATION -->
+  <div id="apply-modal" class="hidden fixed inset-0 z-50 bg-[#251B3A]/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-[#E2DDD5] rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
+        <h3 class="text-lg font-bold text-[#251B3A] flex items-center space-x-2">
+          <i data-lucide="alert-circle" class="w-5 h-5 text-[#047857]"></i>
+          <span>Confirm Optimization Execution</span>
+        </h3>
+        <button onclick="closeApplyModal()" class="text-[#737373] hover:text-[#251B3A]"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="text-xs text-[#251B3A] space-y-2">
+        <p>You are about to execute email enrichment using the proposed <strong>Segment-Smart Waterfall</strong> strategy.</p>
+        <div class="bg-[#F8F6F1] p-4 rounded-lg border border-[#E2DDD5] space-y-1 font-mono">
+          <div>Estimated Credits: <span class="text-[#047857] font-bold" id="modal-confirm-credits">23,500</span></div>
+          <div>Expected Savings: <span class="text-[#047857] font-bold" id="modal-confirm-savings">8,500 Credits (26.6%)</span></div>
+          <div>Expected Success Rate: <span class="text-[#7D2DF3] font-bold" id="modal-confirm-success">76.0%</span></div>
+        </div>
+        <p class="text-[11px] text-[#737373]">No silent changes will be made to default configuration outside this job batch.</p>
+      </div>
+
+      <div class="flex justify-end space-x-3 pt-3 border-t border-[#E2DDD5]">
+        <button onclick="closeApplyModal()" class="btn-secondary text-xs py-2">Cancel</button>
+        <button onclick="confirmAndExecuteOptimization()" class="btn-violet text-xs py-2 shadow-lg">
+          Confirm & Execute
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App JavaScript -->
+  <script src="/app.js"></script>
+</body>
+</html>
