@@ -45,7 +45,8 @@ class OptimizationEngine:
         available_providers: List[Dict[str, Any]],
         provider_costs: Optional[Dict[str, float]] = None,
         historical_success_rates: Optional[Dict[str, float]] = None,
-        constraints: Optional[Dict[str, Any]] = None
+        constraints: Optional[Dict[str, Any]] = None,
+        is_demo: bool = False
     ) -> Dict[str, Any]:
         """
         Executes optimization over input contact batch.
@@ -225,5 +226,5 @@ class OptimizationEngine:
             },
             "confidence": confidence_level,
             "assumptions": assumptions,
-            "is_demo": True  # Labeled clearly as required by spec
+            "is_demo": is_demo
         }

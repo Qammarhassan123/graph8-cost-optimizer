@@ -59,20 +59,24 @@ async function checkConnectionStatus() {
     const badge = document.getElementById('header-mode-badge');
     const setBadge = document.getElementById('settings-status-badge');
 
-    if (data.is_connected) {
+    APP_STATE.isDemoMode = data.is_demo_mode;
+
+    if (!data.is_demo_mode) {
       dot.className = "w-2 h-2 rounded-full bg-[#047857]";
       text.innerText = "Connected (Live API)";
-      badge.className = "px-2 py-0.5 text-[11px] font-semibold rounded-md badge-live";
-      badge.innerHTML = '<i data-lucide="check" class="w-3 h-3 inline mr-1"></i>LIVE API';
+      badge.className = "cursor-pointer px-2.5 py-1 text-[11px] font-bold rounded-md badge-live hover:opacity-80 transition-all flex items-center gap-1 shadow-sm";
+      badge.innerHTML = '<i data-lucide="check-circle" class="w-3.5 h-3.5 text-[#047857]"></i><span>LIVE GRAPH8 MODE</span>';
+      badge.title = "Click to switch to Demo Mode";
       if (setBadge) {
         setBadge.className = "px-3 py-1 rounded-md text-xs font-bold badge-live";
-        setBadge.innerText = "LIVE GRAPH8 API";
+        setBadge.innerText = "LIVE GRAPH8 API (ACTIVE)";
       }
     } else {
       dot.className = "w-2 h-2 rounded-full bg-amber-500";
-      text.innerText = "Demo Mode";
-      badge.className = "px-2 py-0.5 text-[11px] font-semibold rounded-md badge-demo";
-      badge.innerHTML = '<i data-lucide="flask-conical" class="w-3 h-3 inline mr-1"></i>DEMO MODE';
+      text.innerText = "Demo Sandbox";
+      badge.className = "cursor-pointer px-2.5 py-1 text-[11px] font-bold rounded-md badge-demo hover:opacity-80 transition-all flex items-center gap-1 shadow-sm";
+      badge.innerHTML = '<i data-lucide="flask-conical" class="w-3.5 h-3.5 text-[#C2410C]"></i><span>DEMO MODE</span>';
+      badge.title = "Click to switch to Live Graph8 Mode";
       if (setBadge) {
         setBadge.className = "px-3 py-1 rounded-md text-xs font-bold badge-demo";
         setBadge.innerText = "DEMO MODE";
@@ -81,6 +85,26 @@ async function checkConnectionStatus() {
     if (window.lucide) lucide.createIcons();
   } catch (e) {
     console.error("Connection check error:", e);
+  }
+}
+
+// TOGGLE APP MODE (LIVE vs DEMO)
+async function toggleAppMode() {
+  const targetMode = APP_STATE.isDemoMode ? "LIVE" : "DEMO";
+  try {
+    const res = await fetch('/api/v1/mode/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: targetMode })
+    });
+    const data = await res.json();
+    APP_STATE.isDemoMode = data.is_demo_mode;
+    checkConnectionStatus();
+    if (APP_STATE.lastSimulation) {
+      runOptimizationSimulation();
+    }
+  } catch (e) {
+    console.error("Toggle mode error:", e);
   }
 }
 
@@ -219,6 +243,17 @@ function renderSimulationResults(sim) {
 
   document.getElementById('sim-savings-highlight').innerText = `${comp.estimated_credits_saved.toLocaleString()} Credits (${comp.estimated_savings_percent}%)`;
   
+  const estBadge = document.getElementById('sim-estimate-badge');
+  if (estBadge) {
+    if (sim.is_demo) {
+      estBadge.className = "px-2.5 py-0.5 rounded-md text-xs font-semibold badge-demo";
+      estBadge.innerText = "DEMO ESTIMATE";
+    } else {
+      estBadge.className = "px-2.5 py-0.5 rounded-md text-xs font-semibold badge-live";
+      estBadge.innerText = "LIVE ESTIMATE";
+    }
+  }
+
   // Current Card
   document.getElementById('curr-chain-display').innerText = curr.chain.join(' → ');
   document.getElementById('curr-credits').innerText = curr.expected_credits.toLocaleString();

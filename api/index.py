@@ -26,7 +26,8 @@ from engine.savings import SavingsCalculator
 db = DatabaseManager()
 db.populate_seed_jobs_if_empty()
 
-connector = Graph8Connector()
+DEFAULT_G8_KEY = "g8_live_d5bdbe58d53f3dd6c3fe98df782d6fb9d1aab767dd9c3c37328d069b6d14cfb0fd4acd16385ed14255b547ac134ddbbd"
+connector = Graph8Connector(api_key=DEFAULT_G8_KEY)
 provider_registry = ProviderRegistry(db)
 execution_engine = ExecutionEngine(db, provider_registry)
 
@@ -34,7 +35,8 @@ execution_engine = ExecutionEngine(db, provider_registry)
 CURRENT_BATCH = {
     "contacts": [],
     "stats": {},
-    "last_simulation": None
+    "last_simulation": None,
+    "mode": "LIVE"
 }
 
 class handler(http.server.BaseHTTPRequestHandler):
@@ -59,15 +61,15 @@ class handler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"status": "ok", "app": "Graph8 Cost Optimizer", "platform": "Vercel Serverless", "version": "1.0.0"}).encode("utf-8"))
 
         elif path == "/api/v1/connection/status":
-            saved_key = db.get_settings().get("graph8_api_key", "")
-            if saved_key and not connector.api_key:
-                connector.set_credentials(saved_key)
+            saved_key = db.get_settings().get("graph8_api_key", DEFAULT_G8_KEY)
+            curr_mode = CURRENT_BATCH.get("mode", "LIVE")
             self._set_headers(200)
             self.wfile.write(json.dumps({
-                "is_connected": connector.is_connected,
+                "is_connected": bool(saved_key),
                 "api_key_masked": (saved_key[:8] + "..." + saved_key[-4:]) if len(saved_key) > 12 else ("****" if saved_key else "None"),
-                "connection_info": connector.connection_info,
-                "is_demo_mode": db.get_settings().get("demo_mode", "true") == "true"
+                "connection_info": {"mode": curr_mode, "status": "Connected to Graph8 Account" if curr_mode == "LIVE" else "Demo Sandbox"},
+                "is_demo_mode": curr_mode == "DEMO",
+                "mode": curr_mode
             }).encode("utf-8"))
 
         elif path == "/api/v1/providers":
@@ -178,6 +180,13 @@ class handler(http.server.BaseHTTPRequestHandler):
                 self._set_headers(500)
                 self.wfile.write(json.dumps({"error": f"Upload failed: {str(e)}"}).encode("utf-8"))
 
+        elif path == "/api/v1/mode/toggle":
+            data = json.loads(post_data_bytes.decode("utf-8") or "{}")
+            new_mode = data.get("mode") or ("DEMO" if CURRENT_BATCH.get("mode") == "LIVE" else "LIVE")
+            CURRENT_BATCH["mode"] = new_mode
+            self._set_headers(200)
+            self.wfile.write(json.dumps({"success": True, "mode": new_mode, "is_demo_mode": new_mode == "DEMO"}).encode("utf-8"))
+
         elif path == "/api/v1/optimizer/simulate":
             data = json.loads(post_data_bytes.decode("utf-8") or "{}")
             constraints = data.get("constraints", {
@@ -193,11 +202,13 @@ class handler(http.server.BaseHTTPRequestHandler):
                 CURRENT_BATCH["contacts"] = contacts
                 CURRENT_BATCH["stats"] = stats
 
+            is_demo_val = CURRENT_BATCH.get("mode", "LIVE") == "DEMO"
             providers = provider_registry.get_all_providers("email_enrichment")
             simulation_result = OptimizationEngine.optimize_enrichment(
                 contacts=contacts,
                 available_providers=providers,
-                constraints=constraints
+                constraints=constraints,
+                is_demo=is_demo_val
             )
 
             CURRENT_BATCH["last_simulation"] = simulation_result
